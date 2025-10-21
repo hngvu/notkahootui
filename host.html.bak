@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahoot Clone - Host</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎮 Kahoot Clone - Host</h1>
+        <div id="login-screen" class="screen">
+            <h2>Đăng nhập Host</h2>
+            <input type="password" id="host-password" placeholder="Mật khẩu host">
+            <button onclick="hostLogin()">Đăng nhập</button>
+        </div>
+        <div id="upload-screen" class="screen hidden">
+            <h2>Tạo game mới</h2>
+            <input type="file" id="question-file" accept=".txt">
+            <button onclick="uploadQuestions()">Tạo game</button>
+            <div id="upload-result"></div>
+        </div>
+    </div>
+    <script src="js/host.js"></script>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kahoot Clone - Game</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/avatar.css">
+    <link rel="stylesheet" href="css/game-animations.css">
+</head>
+<body>
+    <div class="container">
+        <div class="game-screen">
+            <div class="player-header">
+                <img id="player-avatar" class="player-avatar" src="" alt="Avatar">
+                <span id="player-name-display"></span>
+                <span id="player-score">0 điểm</span>
+            </div>
+            
+            <div id="question-screen" class="screen hidden">
+                <div class="question-header">
+                    <h3 id="question-number">Câu hỏi 1</h3>
+                    <div id="question-timer">20</div>
+                </div>
+                <h2 id="question-text"></h2>
+                <div class="options-grid" id="options-grid"></div>
+            </div>
+            
+            <div id="answer-feedback" class="screen hidden">
+                <div id="feedback-message"></div>
+                <div id="correct-answer"></div>
+            </div>
+            
+            <div id="leaderboard-screen" class="screen hidden">
+                <h2>Bảng xếp hạng</h2>
+                <div id="leaderboard-list"></div>
+            </div>
+            
+            <div id="waiting-screen" class="screen">
+                <h2>Chờ câu hỏi tiếp theo...</h2>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/player-game.js"></script>
+</body>
+</html>
