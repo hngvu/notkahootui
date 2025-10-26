@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback, useRef } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import useWebSocket, { ReadyState } from 'react-use-websocket'
 import Leaderboard from '../Common/Leaderboard'
+import { WS_URL } from '../../utils/constants'
 
 export default function PlayerGame() {
   const [searchParams] = useSearchParams()
@@ -16,17 +17,11 @@ export default function PlayerGame() {
   const hasJoined = useRef(false)
 
   const { lastMessage, sendMessage, readyState } = useWebSocket(
-    gameCode ? `ws://localhost:3000/ws/player/${gameCode}` : null,
+    gameCode ? `${WS_URL}/ws/player/${gameCode}` : null,
     {
       shouldReconnect: () => true,
       reconnectAttempts: 10,
       reconnectInterval: 3000,
-      onOpen: () => {
-        console.log('👤 Player WebSocket connected')
-        hasJoined.current = false // Reset on reconnect
-      },
-      onClose: () => console.log('👤 Player WebSocket disconnected'),
-      onError: (event) => console.error('👤 Player WebSocket error:', event),
     }
   )
 
@@ -38,7 +33,6 @@ export default function PlayerGame() {
   // Send join_game message when WebSocket connects and player info is ready
   useEffect(() => {
     if (readyState === ReadyState.OPEN && playerInfo && !hasJoined.current) {
-      console.log('👤 Sending join_game message:', playerInfo.name)
       sendMessage(JSON.stringify({
         type: 'join_game',
         playerName: playerInfo.name,
@@ -51,13 +45,10 @@ export default function PlayerGame() {
   useEffect(() => {
     if (lastMessage !== null) {
       const data = JSON.parse(lastMessage.data)
-      console.log('👤 Player received message:', data)
       switch (data.type) {
         case 'player_joined':
-          console.log('👤 Player joined with ID:', data.playerId)
           break
         case 'joined_success':
-          console.log('✅ Successfully joined game!')
           break
         case 'new_question':
           setCurrentQuestion(data.question)
@@ -82,38 +73,31 @@ export default function PlayerGame() {
           setLeaderboard(data.finalLeaderboard)
           setGameState('finished')
           break
-        default:
-          console.log('👤 Unknown message type:', data.type)
-          break
       }
     }
   }, [lastMessage])
 
-  const handleAnswerSelect = (index) => {
+  const handleAnswerSelect = useCallback((index) => {
     if (gameState !== 'question') return
     setSelectedAnswer(index)
-  }
-
-  const handleSubmitAnswer = useCallback(() => {
-    if (selectedAnswer === null) return
+    // Auto-submit answer immediately
     sendMessage(JSON.stringify({
       type: 'submit_answer',
-      answerIndex: selectedAnswer,
+      answerIndex: index,
       timeLeft: timeLeft
     }))
-    // Lock in the answer, don't allow changes
     setGameState('waiting')
-  }, [selectedAnswer, sendMessage, timeLeft])
+  }, [gameState, sendMessage, timeLeft])
 
   useEffect(() => {
     if (timeLeft > 0 && gameState === 'question') {
       const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000)
       return () => clearTimeout(timer)
-    } else if (timeLeft === 0 && gameState === 'question' && selectedAnswer !== null) {
-      // Auto submit when time runs out
-      handleSubmitAnswer()
+    } else if (timeLeft === 0 && gameState === 'question' && selectedAnswer === null) {
+      // Auto submit when time runs out without answer
+      setGameState('waiting')
     }
-  }, [timeLeft, gameState, selectedAnswer, handleSubmitAnswer])
+  }, [timeLeft, gameState, selectedAnswer])
 
   if (!playerInfo) {
     return <div>Loading...</div>
@@ -165,16 +149,6 @@ export default function PlayerGame() {
               )
             })}
           </div>
-          {selectedAnswer !== null && (
-            <div className="mt-4 text-center">
-              <button
-                onClick={handleSubmitAnswer}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold py-3 px-8 rounded-lg text-lg"
-              >
-                Xác nhận đáp án
-              </button>
-            </div>
-          )}
         </div>
       )}
 
